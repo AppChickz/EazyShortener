@@ -30,6 +30,19 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
     await this.client.del(key);
   }
 
+  async incrementWithExpiry(key: string, windowSeconds: number): Promise<{ count: number; ttlSeconds: number }> {
+    const result = await this.client.multi().incr(key).ttl(key).exec();
+    const count = Number(result[0]);
+    let ttlSeconds = Number(result[1]);
+
+    if (count === 1 || ttlSeconds < 0) {
+      await this.client.expire(key, windowSeconds);
+      ttlSeconds = windowSeconds;
+    }
+
+    return { count, ttlSeconds };
+  }
+
   ping(): Promise<string> {
     return this.client.ping();
   }
