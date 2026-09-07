@@ -2,6 +2,7 @@ import { Body, Controller, Post, Req, UseGuards } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { User } from '@prisma/client';
 import { ApiTokenGuard } from '../api-tokens/api-token.guard';
+import { RateLimitGuard, UseRateLimit } from '../rate-limit/rate-limit.guard';
 import { ClientLinksService } from './client-links.service';
 import { BatchShortenDto } from './dto/batch-shorten.dto';
 
@@ -10,7 +11,8 @@ interface ApiAuthenticatedRequest {
 }
 
 @Controller('api/v1')
-@UseGuards(ApiTokenGuard)
+@UseGuards(ApiTokenGuard, RateLimitGuard)
+@UseRateLimit('api')
 export class ClientApiController {
   constructor(
     private readonly links: ClientLinksService,
