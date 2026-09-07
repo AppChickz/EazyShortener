@@ -1,6 +1,7 @@
 import { BadRequestException, Body, Controller, Get, Param, Patch, Post, Query, Req, UseGuards } from '@nestjs/common';
 import { User } from '@prisma/client';
 import { JwtGuard } from '../auth/jwt.guard';
+import { RateLimitGuard, UseRateLimit } from '../rate-limit/rate-limit.guard';
 import { CreateLinkDto } from './dto/create-link.dto';
 import { ListLinksDto, normalizeLinkPagination } from './dto/list-links.dto';
 import { UpdateLinkDto } from './dto/update-link.dto';
@@ -76,6 +77,8 @@ export class LinksController {
   }
 
   @Post('guest')
+  @UseGuards(RateLimitGuard)
+  @UseRateLimit('guest')
   async createGuest(@Body() body: GuestCreateLinkBody) {
     if (body.customAlias !== undefined) {
       throw new BadRequestException('Guest links cannot use custom aliases');

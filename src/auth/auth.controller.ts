@@ -1,6 +1,7 @@
-import { Body, Controller, Get, Post, Query } from '@nestjs/common';
+import { Body, Controller, Get, Post, Query, UseGuards } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { MailService } from '../mail/mail.service';
+import { RateLimitGuard, UseRateLimit } from '../rate-limit/rate-limit.guard';
 import { AuthService } from './auth.service';
 import { RegisterDto } from './dto/register.dto';
 import { EmailVerificationService } from './email-verification.service';
@@ -15,12 +16,16 @@ export class AuthController {
   ) {}
 
   @Get('verify-email')
+  @UseGuards(RateLimitGuard)
+  @UseRateLimit('auth')
   async verifyEmail(@Query('token') token: string): Promise<{ verified: true }> {
     await this.emailVerification.verify(token);
     return { verified: true };
   }
 
   @Post('register')
+  @UseGuards(RateLimitGuard)
+  @UseRateLimit('auth')
   async register(@Body() input: RegisterDto): Promise<{ id: string; email: string; status: string }> {
     const user = await this.auth.register(input);
     const { rawToken } = await this.emailVerification.issue(user.id);
