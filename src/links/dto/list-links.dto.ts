@@ -1,5 +1,12 @@
+import { IsOptional, IsString } from 'class-validator';
+
 export class ListLinksDto {
+  @IsOptional()
+  @IsString()
   page?: string;
+
+  @IsOptional()
+  @IsString()
   limit?: string;
 }
 

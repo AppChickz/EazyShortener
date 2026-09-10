@@ -1,13 +1,25 @@
+import { Type } from 'class-transformer';
+import { IsArray, IsOptional, IsString, ValidateNested } from 'class-validator';
 import { normalizeCustomAlias, normalizeExpiration, validateTargetUrl } from '../../links/link-rules';
 
-export interface BatchShortenItemDto {
-  url: string;
+export class BatchShortenItemDto {
+  @IsString()
+  url!: string;
+
+  @IsOptional()
+  @IsString()
   customAlias?: string | null;
+
+  @IsOptional()
+  @IsString()
   expiresAt?: string | null;
 }
 
-export interface BatchShortenDto {
-  links: BatchShortenItemDto[];
+export class BatchShortenDto {
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => BatchShortenItemDto)
+  links!: BatchShortenItemDto[];
 }
 
 export interface ValidatedBatchShortenItem {

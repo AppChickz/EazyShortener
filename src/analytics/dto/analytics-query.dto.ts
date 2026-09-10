@@ -1,5 +1,12 @@
+import { IsOptional, IsString } from 'class-validator';
+
 export class AnalyticsQueryDto {
+  @IsOptional()
+  @IsString()
   days?: string;
+
+  @IsOptional()
+  @IsString()
   recentLimit?: string;
 }
 

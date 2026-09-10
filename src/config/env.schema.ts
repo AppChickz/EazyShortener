@@ -7,6 +7,7 @@ export interface RuntimeEnvironment {
   LOG_LEVEL: string;
   TRUST_PROXY: boolean;
   CORS_ORIGINS: string;
+  BODY_LIMIT_BYTES: number;
   APP_SECRET: string;
   DATABASE_URL: string;
   POSTGRES_USER: string;
@@ -107,6 +108,7 @@ export function validateEnvironment(config: Record<string, unknown>): RuntimeEnv
     LOG_LEVEL: optional(config, 'LOG_LEVEL', 'info'),
     TRUST_PROXY: booleanValue(config, 'TRUST_PROXY', false),
     CORS_ORIGINS: optional(config, 'CORS_ORIGINS'),
+    BODY_LIMIT_BYTES: integer(config, 'BODY_LIMIT_BYTES', 1_048_576),
     APP_SECRET: appSecret,
     DATABASE_URL: required(config, 'DATABASE_URL'),
     POSTGRES_USER: required(config, 'POSTGRES_USER'),
