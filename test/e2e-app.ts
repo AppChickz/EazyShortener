@@ -2,6 +2,8 @@ import { ValidationPipe } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import { ApiTokensService } from '../src/api-tokens/api-tokens.service';
 import { AppModule } from '../src/app.module';
+import { JwtService } from '../src/auth/jwt.service';
+import { HttpErrorFilter } from '../src/common/http-error.filter';
 import { RedisService } from '../src/cache/redis.service';
 import { PrismaService } from '../src/database/prisma.service';
 import { MailService } from '../src/mail/mail.service';
@@ -57,6 +59,7 @@ export async function startE2eApp() {
     .compile();
   const app = moduleRef.createNestApplication();
   app.useGlobalPipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true, transform: true }));
+  app.useGlobalFilters(new HttpErrorFilter());
   await app.listen(0, '127.0.0.1');
 
   return {
@@ -64,6 +67,7 @@ export async function startE2eApp() {
     baseUrl: await app.getUrl(),
     prisma: moduleRef.get(PrismaService),
     apiTokens: moduleRef.get(ApiTokensService),
+    jwt: moduleRef.get(JwtService),
     redis,
     mail,
   };
