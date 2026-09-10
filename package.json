@@ -12,7 +12,8 @@
     "preinstall": "node scripts/require-pnpm.cjs",
     "lint": "eslint . --max-warnings=0",
     "format": "prettier --write \"**/*.{ts,mjs,json}\" --ignore-path .gitignore",
-    "format:check": "prettier --check \"**/*.{ts,mjs,json}\" --ignore-path .gitignore"
+    "format:check": "prettier --check \"**/*.{ts,mjs,json}\" --ignore-path .gitignore",
+    "test": "node --test --require ts-node/register test/**/*.spec.ts"
   },
   "engines": {
     "node": ">=22.0.0",
@@ -36,6 +37,7 @@
   "devDependencies": {
     "@eslint/js": "^9.0.0",
     "@nestjs/cli": "^11.0.24",
+    "@nestjs/testing": "^11.2.1",
     "@types/node": "^24.0.0",
     "@types/nodemailer": "^8.0.1",
     "eslint": "^9.0.0",

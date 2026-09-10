@@ -1,6 +1,7 @@
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { APP_GUARD } from '@nestjs/core';
 import { AppController } from './app.controller';
+import { ApiTokensModule } from './api-tokens/api-tokens.module';
 import { AuthModule } from './auth/auth.module';
 import { CacheModule } from './cache/cache.module';
 import { ClientApiModule } from './client-api/client-api.module';
@@ -20,6 +21,7 @@ import { TokenController } from './web/token.controller';
 @Module({
   imports: [
     AppConfigModule,
+    ApiTokensModule,
     AuthModule,
     CacheModule,
     ClientApiModule,
