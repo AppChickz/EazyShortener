@@ -1,5 +1,6 @@
 import { ValidationPipe } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
+import { ApiTokensService } from '../src/api-tokens/api-tokens.service';
 import { AppModule } from '../src/app.module';
 import { RedisService } from '../src/cache/redis.service';
 import { PrismaService } from '../src/database/prisma.service';
@@ -62,6 +63,7 @@ export async function startE2eApp() {
     app,
     baseUrl: await app.getUrl(),
     prisma: moduleRef.get(PrismaService),
+    apiTokens: moduleRef.get(ApiTokensService),
     redis,
     mail,
   };
