@@ -3,6 +3,16 @@ import { Test } from '@nestjs/testing';
 import { AppModule } from '../src/app.module';
 import { RedisService } from '../src/cache/redis.service';
 import { PrismaService } from '../src/database/prisma.service';
+import { MailService } from '../src/mail/mail.service';
+
+export class CapturingMailService {
+  readonly verificationUrls: Array<{ to: string; url: string }> = [];
+
+  sendVerificationEmail(to: string, verificationUrl: string): Promise<void> {
+    this.verificationUrls.push({ to, url: verificationUrl });
+    return Promise.resolve();
+  }
+}
 
 export class InMemoryRedis {
   readonly values = new Map<string, string>();
@@ -37,9 +47,12 @@ export class InMemoryRedis {
 
 export async function startE2eApp() {
   const redis = new InMemoryRedis();
+  const mail = new CapturingMailService();
   const moduleRef = await Test.createTestingModule({ imports: [AppModule] })
     .overrideProvider(RedisService)
     .useValue(redis)
+    .overrideProvider(MailService)
+    .useValue(mail)
     .compile();
   const app = moduleRef.createNestApplication();
   app.useGlobalPipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true, transform: true }));
@@ -50,5 +63,6 @@ export async function startE2eApp() {
     baseUrl: await app.getUrl(),
     prisma: moduleRef.get(PrismaService),
     redis,
+    mail,
   };
 }
