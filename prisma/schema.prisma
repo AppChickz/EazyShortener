@@ -61,6 +61,7 @@ model ApiToken {
   createdAt  DateTime  @default(now()) @map("created_at")
 
   @@index([userId])
+  @@index([userId, createdAt])
   @@index([expiresAt])
   @@map("api_tokens")
 }
@@ -79,6 +80,7 @@ model Link {
   clickEvents  ClickEvent[]
 
   @@index([userId])
+  @@index([userId, createdAt])
   @@index([expiresAt])
   @@map("links")
 }
@@ -93,5 +95,7 @@ model ClickEvent {
   ipHash       String?  @map("ip_hash") @db.VarChar(64)
 
   @@index([linkId, clickedAt])
+  @@index([linkId, referrerHost])
+  @@index([clickedAt])
   @@map("click_events")
 }
