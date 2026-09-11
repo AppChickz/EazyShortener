@@ -13,6 +13,7 @@
     "lint": "eslint . --max-warnings=0",
     "format": "prettier --write \"**/*.{ts,mjs,json}\" --ignore-path .gitignore",
     "format:check": "prettier --check \"**/*.{ts,mjs,json}\" --ignore-path .gitignore",
+    "local:check": "node scripts/check-local-services.cjs",
     "test": "node --test --require ts-node/register test/**/*.spec.ts"
   },
   "engines": {

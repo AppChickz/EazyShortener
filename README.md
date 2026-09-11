@@ -249,7 +249,7 @@ The batch is limited to 10 URLs and is transactional: either every link is creat
 
 - Node.js LTS
 - pnpm 10 (managed through Corepack)
-- Docker and Docker Compose
+- Existing Laradock services for PostgreSQL, Redis, and Mailpit
 
 ### Local setup
 
@@ -328,15 +328,13 @@ pnpm exec prisma studio
 
 Local infrastructure:
 
-```bash
-# start dependencies
-docker compose up -d
+EazyShortener does not ship a project-local Compose stack. Start PostgreSQL, Redis, and Mailpit from the existing Laradock environment, configure their connection values in `.env`, then verify all three dependencies from the project root:
 
-# stop dependencies
-docker compose down
+```bash
+pnpm local:check
 ```
 
-> During active development, scripts and infrastructure commands are kept aligned with the implementation as each subsystem lands in the repository.
+The check connects to PostgreSQL with Prisma, authenticates to Redis through `REDIS_URL`, and verifies the Mailpit SMTP greeting. It reports only service status and never prints connection credentials. Once all checks report `OK`, start EazyShortener with `pnpm start:dev`.
 
 ## Project Structure
 
