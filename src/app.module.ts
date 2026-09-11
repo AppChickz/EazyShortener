@@ -10,6 +10,7 @@ import { RequestIdMiddleware } from './common/request-id.middleware';
 import { SafeLogger } from './common/safe-logger';
 import { AppConfigModule } from './config/config.module';
 import { DatabaseModule } from './database/database.module';
+import { HealthModule } from './health/health.module';
 import { LinksController } from './links/links.controller';
 import { LinksModule } from './links/links.module';
 import { RedirectModule } from './redirect/redirect.module';
@@ -26,6 +27,7 @@ import { TokenController } from './web/token.controller';
     CacheModule,
     ClientApiModule,
     DatabaseModule,
+    HealthModule,
     LinksModule,
     RateLimitModule,
     RedirectModule,
