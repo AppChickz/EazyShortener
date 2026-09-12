@@ -1,0 +1,57 @@
+erDiagram
+  User ||--o{ EmailVerificationToken : has
+  User ||--o{ ApiToken : has
+  User o|--o{ Link : owns
+  Link ||--o{ ClickEvent : records
+
+  User {
+    uuid id PK
+    string email UK
+    string password_hash
+    enum status
+    datetime email_verified_at NULL
+    datetime created_at
+    datetime updated_at
+  }
+
+  EmailVerificationToken {
+    uuid id PK
+    uuid user_id FK
+    string token_hash UK
+    datetime expires_at
+    datetime used_at NULL
+    datetime created_at
+  }
+
+  ApiToken {
+    uuid id PK
+    uuid user_id FK
+    string name
+    string token_prefix
+    string token_hash UK
+    datetime expires_at NULL
+    datetime revoked_at NULL
+    datetime last_used_at NULL
+    datetime created_at
+  }
+
+  Link {
+    uuid id PK
+    uuid user_id FK "nullable for guest links"
+    string short_code UK
+    string original_url
+    datetime expires_at NULL
+    boolean is_active
+    enum created_via
+    datetime created_at
+    datetime updated_at
+  }
+
+  ClickEvent {
+    uuid id PK
+    uuid link_id FK
+    datetime clicked_at
+    string referrer_host NULL
+    string user_agent NULL
+    string ip_hash NULL
+  }
