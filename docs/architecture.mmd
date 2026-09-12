@@ -1,0 +1,44 @@
+flowchart LR
+  subgraph Public[Public / untrusted clients]
+    G[Guest browser]
+    U[Registered browser]
+    C[API client]
+    R[Redirect visitor]
+  end
+
+  subgraph AppBoundary[EazyShortener application boundary]
+    WEB[Server-rendered web]
+    API[Client API]
+    REDIRECT[Redirect module]
+    AUTH[Auth + API tokens]
+    LINKS[Links]
+    ANALYTICS[Analytics]
+    HEALTH[Health]
+    DOCS[Swagger / OpenAPI]
+  end
+
+  subgraph Infra[Infrastructure trust boundary]
+    PG[(PostgreSQL)]
+    REDIS[(Redis)]
+    SMTP[SMTP / Mailpit]
+  end
+
+  G --> WEB
+  U --> WEB
+  C -->|Bearer API token| API
+  R --> REDIRECT
+
+  WEB --> AUTH
+  WEB --> LINKS
+  API --> LINKS
+  AUTH --> PG
+  AUTH --> SMTP
+  LINKS --> PG
+  LINKS --> REDIS
+  REDIRECT --> REDIS
+  REDIRECT --> PG
+  REDIRECT -. isolated recording .-> ANALYTICS
+  ANALYTICS --> PG
+  HEALTH --> PG
+  HEALTH --> REDIS
+  DOCS --- API
