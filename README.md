@@ -79,7 +79,7 @@ The public web experience is based on the approved Penpot design stored in `docs
 | Area | Technology |
 | --- | --- |
 | Backend | NestJS, TypeScript |
-| Runtime | Node.js LTS |
+| Runtime | Node.js 22+ |
 | Database | PostgreSQL |
 | ORM | Prisma |
 | Cache / rate limiting | Redis |
@@ -89,8 +89,8 @@ The public web experience is based on the approved Penpot design stored in `docs
 | Secret derivation | HKDF-SHA256 from a single `APP_SECRET` with purpose-specific context |
 | Email | SMTP-compatible provider, Mailpit for local development |
 | API documentation | Swagger / OpenAPI |
-| Testing | Jest, Supertest |
-| Local infrastructure | Docker, Docker Compose |
+| Testing | Node.js test runner, database-backed HTTP E2E tests |
+| Local infrastructure | Existing Laradock PostgreSQL, Redis, and Mailpit services |
 | CI | GitHub Actions |
 | License | MIT |
 
@@ -229,17 +229,25 @@ Content-Type: application/json
 
 The batch is limited to 10 URLs and is transactional: either every link is created or none are.
 
+Equivalent curl request:
+
+```bash
+curl -X POST http://localhost:3000/api/v1/shorten \
+  -H 'Authorization: Bearer ez_live_REPLACE_WITH_YOUR_TOKEN' \
+  -H 'Content-Type: application/json' \
+  -d '{"links":[{"url":"https://example.com/docs/api"}]}'
+```
+
 ### Standard error shape
 
 ```json
 {
   "statusCode": 400,
-  "code": "VALIDATION_ERROR",
+  "error": "BAD_REQUEST",
   "message": "Request validation failed",
-  "details": [],
-  "timestamp": "2026-08-22T07:00:00.000Z",
   "path": "/api/v1/shorten",
-  "requestId": "req_01J5XYZ..."
+  "requestId": "550e8400-e29b-41d4-a716-446655440000",
+  "timestamp": "2026-09-12T10:00:00.000Z"
 }
 ```
 
@@ -247,7 +255,7 @@ The batch is limited to 10 URLs and is transactional: either every link is creat
 
 ### Prerequisites
 
-- Node.js LTS
+- Node.js 22+
 - pnpm 10 (managed through Corepack)
 - Existing Laradock services for PostgreSQL, Redis, and Mailpit
 
@@ -280,9 +288,10 @@ Do not commit the real `APP_SECRET` or your local `.env` file. Rotating `APP_SEC
 
 After configuring `.env`, make sure the required local services are already running. This project reuses the existing Laradock environment for PostgreSQL, Mailpit, and Redis instead of starting duplicate project-level containers. Point `DATABASE_URL`, the SMTP settings, and `REDIS_URL` in `.env` at those local services. In the current local Laradock setup, Mailpit SMTP is exposed on `localhost:1125`, the Mailpit web inbox is available at `http://localhost:8125`, and Redis is exposed on `localhost:6379` with authentication enabled. Keep the real Redis password only in `.env`; do not commit it.
 
-Apply the Prisma schema and start the application:
+Verify local dependencies, apply migrations, and start the application:
 
 ```bash
+pnpm local:check
 pnpm exec prisma migrate dev
 pnpm start:dev
 ```
@@ -293,7 +302,23 @@ The application is expected to run at:
 http://localhost:3000
 ```
 
-Local API documentation will be exposed through Swagger once the API module is enabled in the implementation.
+Useful local endpoints:
+
+```text
+Application:   http://localhost:3000
+Swagger UI:    http://localhost:3000/docs
+OpenAPI JSON:  http://localhost:3000/docs-json
+Liveness:      http://localhost:3000/health/live
+Readiness:     http://localhost:3000/health/ready
+Mailpit inbox: http://localhost:8125
+```
+
+Quick health check:
+
+```bash
+curl -fsS http://localhost:3000/health/live
+curl -fsS http://localhost:3000/health/ready
+```
 
 ## Development
 
@@ -303,17 +328,15 @@ Common development commands:
 # start in watch mode
 pnpm start:dev
 
-# type-check / build
-pnpm build
+# type-check
+pnpm exec tsc --noEmit
 
-# unit tests
+# tests (HTTP E2E suite included)
 pnpm test
 
-# end-to-end tests
-pnpm test:e2e
-
-# lint
+# lint and build
 pnpm lint
+pnpm build
 ```
 
 Database workflow:
@@ -374,16 +397,16 @@ The project is designed to include:
 
 - focused unit tests for domain and security rules
 - controller/service integration coverage
-- Supertest-based HTTP end-to-end tests
+- HTTP end-to-end tests against a real Nest application and PostgreSQL database
 - database-backed tests for transactional behavior
 - redirect status and cache behavior tests
 - authentication and API-token security tests
-- GitHub Actions for automated build, lint, and test checks
+- GitHub Actions for dependency install, Prisma migration, lint, TypeScript typecheck, test, and build checks
 
 ## API Conventions
 
 - Client-facing APIs are versioned under `/api/v1/...`.
-- Pagination defaults to `page=1&pageSize=20` with a maximum `pageSize=100`.
+- Link pagination defaults to `page=1&limit=20` with a maximum `limit=100`.
 - Stable application error codes are preferred over parsing human-readable messages.
 - Important status codes include `400`, `401`, `403`, `404`, `409`, `410`, `429`, `500`, and `503`.
 
