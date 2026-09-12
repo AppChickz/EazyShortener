@@ -34,7 +34,8 @@ function createHarness(ttlSeconds = 86_400) {
     $transaction: <T>(callback: (tx: unknown) => Promise<T>) => callback(prisma),
   };
   const config = { get: (key: string) => (key === 'EMAIL_VERIFICATION_TTL_SECONDS' ? ttlSeconds : undefined) };
-  return { service: new EmailVerificationService(prisma as never, config as never), rows, users };
+  const apiTokens = { issueInitialIfAbsent: () => Promise.resolve(null) };
+  return { service: new EmailVerificationService(prisma as never, config as never, apiTokens as never), rows, users };
 }
 
 void test('issues cryptographically random raw tokens while persisting only their hashes with configured TTL', async () => {
@@ -64,7 +65,8 @@ void test('verifies a valid token, activates the user, and rejects reuse', async
   const issued = await service.issue('user-verify', new Date('2026-08-29T00:00:00.000Z'));
   const verifiedAt = new Date('2026-08-29T00:05:00.000Z');
 
-  assert.equal(await service.verify(issued.rawToken, verifiedAt), 'user-verify');
+  const verified = await service.verify(issued.rawToken, verifiedAt);
+  assert.equal(verified.userId, 'user-verify');
   assert.equal(users.get('user-verify')?.status, 'ACTIVE');
   assert.equal(users.get('user-verify')?.emailVerifiedAt?.toISOString(), verifiedAt.toISOString());
   await assert.rejects(service.verify(issued.rawToken, verifiedAt), /Invalid or expired verification token/);
