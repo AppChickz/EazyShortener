@@ -72,7 +72,7 @@ Before requesting review, run the checks relevant to your change:
 
 ```bash
 pnpm run lint
-pnpm exec tsc --noEmit
+pnpm typecheck
 pnpm run test
 pnpm run build
 ```

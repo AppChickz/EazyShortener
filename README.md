@@ -2,7 +2,7 @@
 
 A production-minded URL shortener and API platform built to demonstrate practical backend engineering, system design, security, caching, analytics, API design, and maintainable application architecture.
 
-> **Status:** Active development. The repository is being implemented incrementally toward the v1 architecture described below.
+> **Status:** v1.0.0 release candidate. The planned v1 feature set, security hardening, tests, CI, containerization, and portfolio documentation are complete pending final release verification.
 
 ![NestJS](https://img.shields.io/badge/NestJS-TypeScript-E0234E?logo=nestjs&logoColor=white)
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-Database-4169E1?logo=postgresql&logoColor=white)
@@ -329,7 +329,7 @@ Common development commands:
 pnpm start:dev
 
 # type-check
-pnpm exec tsc --noEmit
+pnpm typecheck
 
 # tests (HTTP E2E suite included)
 pnpm test
